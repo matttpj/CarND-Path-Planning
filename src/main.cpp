@@ -112,6 +112,19 @@ int main() {
             // Car is in my lane
             float d = sensor_fusion[i][6];
 
+            // Determine lanes of other cars by their d distance from centre of road
+            int check_car_lane;
+
+            if(d > 8){
+              check_car_lane = 2;
+            }
+            else if(d > 4){
+              check_car_lane = 1;
+            }
+            else{
+              check_car_lane = 0;
+            }
+
             if((d < (2+4*lane+2)) && (d > (2+4*lane-2))){
 
               double vx = sensor_fusion[i][3];
@@ -121,14 +134,20 @@ int main() {
 
               check_car_s += ((double)prev_size * 0.02 * check_speed); // if using previous points can project s value outputs
 
-              // Check s values greater than mine and s gap is less than 30m
+              // Check s value is greater than mine and s gap is less than 30m
               if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
 
                 // Lower refernce velocity to avoid crashing into car in front
                 // ref_vel = 29.5; // mph
                 too_close = true;
-                if(lane > 0){
+                if(check_car_lane > 1){
+                  lane = 1;
+                }
+                else if(check_car_lane > 0){
                   lane = 0;
+                }
+                else{
+                  lane = 2;
                 }
               }
 
@@ -137,7 +156,7 @@ int main() {
           if(too_close){
             ref_vel -= 0.224;
           }
-          else if(ref_vel < 49.5){
+          else if(ref_vel < 49.0){
             ref_vel += 0.224;
           }
 
