@@ -9,11 +9,11 @@
 **Path Planning Project**
 
 The major steps taken to complete this project included:
-* Reviewing **Highway Driving** project goals, project instructions and coding tips in the Q&A video
+* Reviewing **Highway Driving** project goals, project instructions and coding tips in the [Q&A video](https://youtu.be/7sI3VHFPP0w)
 * Getting familiar with the commands needed in the Udacity workspace to compile project code and launch the driving simulator
 * Using code from the Getting Started and More Complex Paths lesson segments to get my car moving
 * Writing code in __main.cpp__ as recommended by the Q&A video to enable my car to drive around the track without violating any of the requirements defined in the [project rubric](https://review.udacity.com/#!/rubrics/1971/view)
-* Explaining in detail the code for generating paths **_[see below]_**
+* Explaining in detail the code for generating paths **_[see below](#Reflection)_**
 
 
 [//]: # (Image References) **TODO: update screenshot image**  
@@ -39,7 +39,7 @@ Key files are in source directory __src/*__:
 
 ---
 ### Compilation
-Above source code compiles
+The above source code compiles successfully in the Udacity workspace.
 
 ---
 ### Valid trajectories
