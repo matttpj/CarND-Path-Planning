@@ -60,12 +60,12 @@ The code for Generating Paths is included in file **_main.cpp_**  from line 54 o
 
 __Localisation >>__ The simulator provides information at position of my car on the track, including: x, y, s, d, theta, yaw, speed
 
-__Sensor Fusion__ >> The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
+__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
 
-__Previous Path__ >> The simulator provides previous path data sent to the path planner
+__Previous Path >>__ The simulator provides previous path data sent to the path planner
 
-__Spline__ >> Uses an external library to create a series of waypoints for my car to drive through
+__Spline >>__  Uses an external library to create a series of waypoints for my car to drive through
 
-__Json__ >> Constructs a message in Json format with a series of new X and Y values to tell my car which path to follow
+__Json >>__ Constructs a message in Json format with a series of new X and Y values to tell my car which path to follow
 
-__Web Sockets__ >> Sends message to the simulator
+__Web Sockets >>__ Sends message to the simulator
