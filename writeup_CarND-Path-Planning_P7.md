@@ -58,14 +58,22 @@ The above source code compiles successfully in the Udacity workspace.
 ### Reflection
 The code for Generating Paths is included in file **_main.cpp_**  from line 54 onwards. An explanation of how it works is outlined below.
 
-__Localisation >>__ The simulator provides information at position of my car on the track, including: x, y, s, d, theta, yaw, speed
-
-__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
+__Localisation >>__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed
 
 __Previous Path >>__ The simulator provides previous path data sent to the path planner
+
+__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
 
 __Spline >>__  Uses an external library to create a series of waypoints for my car to drive through
 
 __Json >>__ Constructs a message in Json format with a series of new X and Y values to tell my car which path to follow
 
 __Web Sockets >>__ Sends message to the simulator
+
+__Detailed Steps__
+ *  __Check position of other cars >>__ Use sensor fusion data to determine position of other cars that are in close proximity  __TO DO__
+ *  __Change lane >>__ Change the lane of my car if safe to do so  __TO DO__
+ * __Initial reference points >>__ For defining the path for my car to follow, if previous path is almost empty (eg. < 2 points because my car is near the start) use my car's actual position as reference points; or use my car's previous path's last 2 end points as reference points
+ *  __Define next waypoints >>__ Add 3x additional waypoints evenly spaced at 30m intervals ahead of the starting reference in s,d Frenet coordinates and then convert to x,y cartesian coordinates
+ *  __Create spline >>__ Use above waypoints to create a spline of points to follow
+ *  __Path planner >>__ Fill up path planner of future points to follow  __TO DO__

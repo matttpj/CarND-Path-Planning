@@ -140,11 +140,11 @@ int main() {
                 // Lower refernce velocity to avoid crashing into car in front
                 // ref_vel = 29.5; // mph
                 too_close = true;
-                if(check_car_lane > 1){
-                  lane = 1;
-                }
-                else if(check_car_lane > 0){
+                if(check_car_lane > 0){
                   lane = 0;
+                }
+                else if(check_car_lane > 1){
+                  lane = 1;
                 }
                 else{
                   lane = 2;
@@ -242,7 +242,7 @@ int main() {
           double ref_y = car_y;
           double ref_yaw = deg2rad(car_yaw);
 
-          // If previous size is almost empty, use the car as starting reference
+          // If previous path size is almost empty, use the car as starting reference
           if(prev_size < 2){
 
             //Use two points that make the path tangent to the car
@@ -310,7 +310,7 @@ int main() {
           vector<double> next_y_vals;
 
           // Start with all the previous path points from last time
-          for(int i = 0; i < previous_path_x.size(); i++){
+          for(int i = 0; i < prev_size; i++){
             next_x_vals.push_back(previous_path_x[i]);
             next_y_vals.push_back(previous_path_y[i]);
           }
@@ -323,7 +323,7 @@ int main() {
           double x_add_on = 0;
 
           // Fill up the rest of the path planner after filling it with previous set_points
-          for (int i = 1; i <= 50 - previous_path_x.size(); i++){
+          for (int i = 1; i <= 50 - prev_size; i++){
 
             double N = (target_dist / (0.02 * ref_vel / 2.24));  // mph to m/s
             double x_point = x_add_on + (target_x / N);
