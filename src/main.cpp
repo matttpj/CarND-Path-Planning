@@ -57,18 +57,6 @@ int main() {
   // Reference velocity of my car to target
   double ref_vel = 0.0; // mph
 
-  // Other velocity parameters for my car
-  double speed_diff = 0;
-  const double MAX_SPEED = 49.5;
-  const double MAX_ACC = .224;
-
-  // Lane position of other cars
-  int check_car_lane;
-  bool car_ahead = false;
-  bool car_left = false;
-  bool car_right = false;
-  bool too_close = false;
-
   h.onMessage([&ref_vel,&lane,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
@@ -102,16 +90,28 @@ int main() {
           // Previous path's end s and d values
           double end_path_s = j[1]["end_path_s"];
           double end_path_d = j[1]["end_path_d"];
+          // Previous path size
+          int prev_size = previous_path_x.size();
 
           // Sensor fusion - a list of all cars on the same side of the road
           vector<vector<double>> sensor_fusion = j[1]["sensor_fusion"];
-
-          int prev_size = previous_path_x.size();
 
           // Sensor fusion - QA video 40m00s
           if(prev_size > 0){
             car_s = end_path_s;
           }
+
+          // Other velocity parameters for my car
+          double speed_diff = 0;
+          const double MAX_SPEED = 49.5;
+          const double MAX_ACC = .224;
+
+          // Lane position of other cars
+          int check_car_lane;
+          bool car_ahead = false;
+          bool car_left = false;
+          bool car_right = false;
+          bool too_close = false;
 
           // Load data about other cars from sensors
           for(int i = 0; i < sensor_fusion.size(); i++){
