@@ -51,12 +51,23 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
-  // Start in middle lane (1)
+  // My car starts in middle lane (1)
   int lane = 1;
 
-  // Reference velocity to target
+  // Reference velocity of my car to target
   double ref_vel = 0.0; // mph
 
+  // Other velocity parameters for my car
+  double speed_diff = 0;
+  const double MAX_SPEED = 49.5;
+  const double MAX_ACC = .224;
+
+  // Lane position of other cars
+  int check_car_lane;
+  bool car_ahead = false;
+  bool car_left = false;
+  bool car_right = false;
+  bool too_close = false;
 
   h.onMessage([&ref_vel,&lane,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy]
@@ -77,7 +88,7 @@ int main() {
         if (event == "telemetry") {
           // j[1] is the data JSON object
 
-          // Main car's localization Data provided by Simulator
+          // My car's localisation data provided by simulator
           double car_x = j[1]["x"];
           double car_y = j[1]["y"];
           double car_s = j[1]["s"];
@@ -85,7 +96,7 @@ int main() {
           double car_yaw = j[1]["yaw"];
           double car_speed = j[1]["speed"];
 
-          // Previous path data given to the Planner
+          // Previous path data sent to the planner
           auto previous_path_x = j[1]["previous_path_x"];
           auto previous_path_y = j[1]["previous_path_y"];
           // Previous path's end s and d values
@@ -93,74 +104,58 @@ int main() {
           double end_path_d = j[1]["end_path_d"];
 
           // Sensor fusion - a list of all cars on the same side of the road
-          //auto sensor_fusion = j[1]["sensor_fusion"];
           vector<vector<double>> sensor_fusion = j[1]["sensor_fusion"];
 
           int prev_size = previous_path_x.size();
 
-
-          // Sensor fusion - video 40m00s
+          // Sensor fusion - QA video 40m00s
           if(prev_size > 0){
             car_s = end_path_s;
           }
 
-          int check_car_lane;
-          bool car_ahead = false;
-          bool car_left = false;
-          bool car_right = false;
-          bool too_close = false;
-
-          // Find ref_v to use
+          // Load data about other cars from sensors
           for(int i = 0; i < sensor_fusion.size(); i++){
-
-            // Car is in my lane
-            float d = sensor_fusion[i][6];
-
-            // Determine lanes of other cars by their d distance from centre of road
-            if(d > 8){
-              check_car_lane = 2;
-            }
-            else if(d > 4){
-              check_car_lane = 1;
-            }
-            else{
-              check_car_lane = 0;
-            }
-
-            // if((d < (2+4*lane+2)) && (d > (2+4*lane-2))){
 
             double vx = sensor_fusion[i][3];
             double vy = sensor_fusion[i][4];
             double check_speed = sqrt(vx * vx + vy * vy);
             double check_car_s = sensor_fusion[i][5];
 
-            check_car_s += ((double)prev_size * 0.02 * check_speed); // if using previous points can project s value outputs
+            // Determine lane of other cars by their d distance from centre of road
+            float d = sensor_fusion[i][6];
 
-            // Check s value is greater than mine and s gap is less than 30m
-            // if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
+            if(d > 8){
+              // right lane
+              check_car_lane = 2;
+            }
+            else if(d > 4){
+              // middle lane
+              check_car_lane = 1;
+            }
+            else{
+              // left lane
+              check_car_lane = 0;
+            }
+
+            // If using previous points then project s value outputs
+            check_car_s += ((double)prev_size * 0.02 * check_speed);
 
             // Check other car lane positions relative to my car and if their s value is +/- 30m set boolean to true
             // Car in my lane
             if ( check_car_lane == lane ) {
-
               car_ahead |= check_car_s > car_s && check_car_s - car_s < 30;
 
             // Car to the left
             } else if ( check_car_lane - lane == -1 ) {
-
               car_left |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
 
             // Car to the right
             } else if ( check_car_lane - lane == 1 ) {
-
               car_right |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
             }
           }
-          // Decide lane and speed
-          double speed_diff = 0;
-          const double MAX_SPEED = 49.5;
-          const double MAX_ACC = .224;
 
+         // Decide lane or adjust speed
           // Car ahead
           if ( car_ahead ) {
             // If there is no car left and there is a left lane
@@ -195,107 +190,8 @@ int main() {
             }
           }
 
-
-                // Lower refernce velocity to avoid crashing into car in front
-                // ref_vel = 29.5; // mph
-                /**
-                too_close = true;
-                if(check_car_lane > 0){
-                  lane = 0;
-                }
-                else if(check_car_lane > 1){
-                  lane = 1;
-                }
-                else{
-                  lane = 2;
-                }
-                **/
-           // } // end of check s value if
-
-          /**
-          }
-          if(too_close){
-            ref_vel -= 0.224;
-          }
-          else if(ref_vel < 49.0){
-            ref_vel += 0.224;
-          }
-          **/
-
-          /**
-           * TODO: define a path made up of (x,y) points that the car will visit
-           *   sequentially every .02 seconds
-           */
-
-          /** // Getting Started - car moves in straight line - video 10m00s
-          double dist_inc = 0.5;
-          for (int i = 0; i < 50; i++) {
-             next_x_vals.push_back(car_x+(dist_inc*i)*cos(deg2rad(car_yaw)));
-             next_y_vals.push_back(car_y+(dist_inc*i)*sin(deg2rad(car_yaw)));
-          }
-          **/  // End of car moving in straight line
-
-          /** // More complex paths - car drives in a circle
-          vector<double> next_x_vals;
-          vector<double> next_y_vals;
-
-          double pos_x;
-          double pos_y;
-          double angle;
-          int path_size = previous_path_x.size();
-
-          for (int i = 0; i < path_size; ++i) {
-            next_x_vals.push_back(previous_path_x[i]);
-            next_y_vals.push_back(previous_path_y[i]);
-          }
-
-          if (path_size == 0) {
-            pos_x = car_x;
-            pos_y = car_y;
-            angle = deg2rad(car_yaw);
-          } else {
-            pos_x = previous_path_x[path_size-1];
-            pos_y = previous_path_y[path_size-1];
-
-            double pos_x2 = previous_path_x[path_size-2];
-            double pos_y2 = previous_path_y[path_size-2];
-            angle = atan2(pos_y-pos_y2,pos_x-pos_x2);
-          }
-
-          double dist_inc = 0.5;
-          for (int i = 0; i < 50-path_size; ++i) {
-            next_x_vals.push_back(pos_x+(dist_inc)*cos(angle+(i+1)*(pi()/100)));
-            next_y_vals.push_back(pos_y+(dist_inc)*sin(angle+(i+1)*(pi()/100)));
-            pos_x += (dist_inc)*cos(angle+(i+1)*(pi()/100));
-            pos_y += (dist_inc)*sin(angle+(i+1)*(pi()/100));
-          }
-
-          msgJson["next_x"] = next_x_vals;
-          msgJson["next_y"] = next_y_vals;
-          **/  // End of car driving in a circle
-
-          /** // Car stays in lane - video 18m00s
-          // Define the actual (x,y) points we will use for the planner
-          vector<double> next_x_vals;
-          vector<double> next_y_vals;
-
-          double dist_inc = 0.3;
-          for (int i = 0; i < 50; i++) {
-
-            double next_s = car_s+(i+1)*dist_inc;
-            double next_d = 6;
-
-            vector<double> xy = getXY(next_s, next_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-
-            next_x_vals.push_back(xy[0]);
-            next_y_vals.push_back(xy[1]);
-
-          }
-          **/ // End of car stays in lane
-
           // Create a list of widely spaced (x,y) waypoints that are evenly spaced at 30m intervals
-          // Use splines for car to follow smooth path through all waypoints - video from 21m30s
-
+          // Use splines for my car to follow smooth path through all waypoints - QA video from 21m30s
           vector<double> ptsx;
           vector<double> ptsy;
 
@@ -338,9 +234,9 @@ int main() {
 
           }
           // In Frenet add evenly 30m spaced points ahead of the starting reference
-          vector<double> next_wp0 = getXY(car_s+30,(2+4*lane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
-          vector<double> next_wp1 = getXY(car_s+60,(2+4*lane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
-          vector<double> next_wp2 = getXY(car_s+90,(2+4*lane),map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp0 = getXY(car_s + 30, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp1 = getXY(car_s + 60, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp2 = getXY(car_s + 90, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 
           ptsx.push_back(next_wp0[0]);
           ptsx.push_back(next_wp1[0]);
@@ -387,6 +283,7 @@ int main() {
           // Fill up the rest of the path planner after filling it with previous set_points
           for (int i = 1; i <= 50 - prev_size; i++){
 
+            // Set velocity of my car
             ref_vel += speed_diff;
             if ( ref_vel > MAX_SPEED ) {
               ref_vel = MAX_SPEED;
@@ -394,6 +291,7 @@ int main() {
               ref_vel = MAX_ACC;
             }
 
+            // Set (x,y) points of the spline
             double N = (target_dist / (0.02 * ref_vel / 2.24));  // mph to m/s
             double x_point = x_add_on + (target_x / N);
             double y_point = s(x_point);
