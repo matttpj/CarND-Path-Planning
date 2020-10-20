@@ -20,7 +20,7 @@ The major steps taken to complete this project included:
 [//]: # (Image References) **TODO: update screenshot image**  
 
 __Screenshot of the driving simulator__  
-<img src="./output_images/video_output_run2.jpg" width=100% height=100%>
+<img src="./path_planning_success.jpg" width=100% height=100%>
 
 ---
 ### Writeup / README

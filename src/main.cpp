@@ -104,6 +104,10 @@ int main() {
             car_s = end_path_s;
           }
 
+          int check_car_lane;
+          bool car_ahead = false;
+          bool car_left = false;
+          bool car_right = false;
           bool too_close = false;
 
           // Find ref_v to use
@@ -113,8 +117,6 @@ int main() {
             float d = sensor_fusion[i][6];
 
             // Determine lanes of other cars by their d distance from centre of road
-            int check_car_lane;
-
             if(d > 8){
               check_car_lane = 2;
             }
@@ -125,20 +127,78 @@ int main() {
               check_car_lane = 0;
             }
 
-            if((d < (2+4*lane+2)) && (d > (2+4*lane-2))){
+            // if((d < (2+4*lane+2)) && (d > (2+4*lane-2))){
 
-              double vx = sensor_fusion[i][3];
-              double vy = sensor_fusion[i][4];
-              double check_speed = sqrt(vx * vx + vy * vy);
-              double check_car_s = sensor_fusion[i][5];
+            double vx = sensor_fusion[i][3];
+            double vy = sensor_fusion[i][4];
+            double check_speed = sqrt(vx * vx + vy * vy);
+            double check_car_s = sensor_fusion[i][5];
 
-              check_car_s += ((double)prev_size * 0.02 * check_speed); // if using previous points can project s value outputs
+            check_car_s += ((double)prev_size * 0.02 * check_speed); // if using previous points can project s value outputs
 
-              // Check s value is greater than mine and s gap is less than 30m
-              if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
+            // Check s value is greater than mine and s gap is less than 30m
+            // if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
+
+            // Check other car lane positions relative to my car and if their s value is +/- 30m set boolean to true
+            // Car in my lane
+            if ( check_car_lane == lane ) {
+
+              car_ahead |= check_car_s > car_s && check_car_s - car_s < 30;
+
+            // Car to the left
+            } else if ( check_car_lane - lane == -1 ) {
+
+              car_left |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
+
+            // Car to the right
+            } else if ( check_car_lane - lane == 1 ) {
+
+              car_right |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
+            }
+          }
+          // Decide lane and speed
+          double speed_diff = 0;
+          const double MAX_SPEED = 49.5;
+          const double MAX_ACC = .224;
+
+          // Car ahead
+          if ( car_ahead ) {
+            // If there is no car left and there is a left lane
+            if ( !car_left && lane > 0 ) {
+              // Change lane left
+              lane--;
+            // If there is no car right and there is a right lane
+            } else if ( !car_right && lane != 2 ){
+              // Change lane right
+              lane++;
+            // If unable to change lane
+            } else {
+              // Reduce speed
+              speed_diff -= MAX_ACC;
+            }
+          }
+          // Road ahead is clear
+          else {
+            // If my car is not in the middle lane
+            if ( lane != 1 ) {
+              // If my car is left lane and no cars to the right
+              // OR if my car is right lane and no cars to the left
+              if ( ( lane == 0 && !car_right ) || ( lane == 2 && !car_left ) ) {
+                // Change lane back to the middle lane
+                lane = 1;
+              }
+            }
+            // If my speed is less than the speed limit
+            if ( ref_vel < MAX_SPEED ) {
+              // Accelerate at maximum
+              speed_diff += MAX_ACC;
+            }
+          }
+
 
                 // Lower refernce velocity to avoid crashing into car in front
                 // ref_vel = 29.5; // mph
+                /**
                 too_close = true;
                 if(check_car_lane > 0){
                   lane = 0;
@@ -149,9 +209,10 @@ int main() {
                 else{
                   lane = 2;
                 }
-              }
+                **/
+           // } // end of check s value if
 
-            }
+          /**
           }
           if(too_close){
             ref_vel -= 0.224;
@@ -159,6 +220,7 @@ int main() {
           else if(ref_vel < 49.0){
             ref_vel += 0.224;
           }
+          **/
 
           /**
            * TODO: define a path made up of (x,y) points that the car will visit
@@ -324,6 +386,13 @@ int main() {
 
           // Fill up the rest of the path planner after filling it with previous set_points
           for (int i = 1; i <= 50 - prev_size; i++){
+
+            ref_vel += speed_diff;
+            if ( ref_vel > MAX_SPEED ) {
+              ref_vel = MAX_SPEED;
+            } else if ( ref_vel < MAX_ACC ) {
+              ref_vel = MAX_ACC;
+            }
 
             double N = (target_dist / (0.02 * ref_vel / 2.24));  // mph to m/s
             double x_point = x_add_on + (target_x / N);
