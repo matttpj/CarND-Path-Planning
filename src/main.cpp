@@ -74,8 +74,9 @@ int main() {
         string event = j[0].get<string>();
 
         if (event == "telemetry") {
-          // j[1] is the data JSON object
 
+          // j[1] is the data JSON object
+          // Localization >>
           // My car's localisation data provided by simulator
           double car_x = j[1]["x"];
           double car_y = j[1]["y"];
@@ -84,6 +85,7 @@ int main() {
           double car_yaw = j[1]["yaw"];
           double car_speed = j[1]["speed"];
 
+          // Previous Path >>
           // Previous path data sent to the planner
           auto previous_path_x = j[1]["previous_path_x"];
           auto previous_path_y = j[1]["previous_path_y"];
@@ -93,10 +95,11 @@ int main() {
           // Previous path size
           int prev_size = previous_path_x.size();
 
-          // Sensor fusion - a list of all cars on the same side of the road
+          // Sensor Fusion >>
+          // Provides a list of all cars on the same side of the road
           vector<vector<double>> sensor_fusion = j[1]["sensor_fusion"];
 
-          // Sensor fusion - QA video 40m00s
+          // QA video 40m00s
           if(prev_size > 0){
             car_s = end_path_s;
           }
@@ -155,7 +158,8 @@ int main() {
             }
           }
 
-         // Decide lane or adjust speed
+          // Path Planning >>
+          // Decide lane or adjust speed
           // Car ahead
           if ( car_ahead ) {
             // If there is no car left and there is a left lane
@@ -190,6 +194,7 @@ int main() {
             }
           }
 
+          // Generating Paths >>
           // Create a list of widely spaced (x,y) waypoints that are evenly spaced at 30m intervals
           // Use splines for my car to follow smooth path through all waypoints - QA video from 21m30s
           vector<double> ptsx;
@@ -257,10 +262,10 @@ int main() {
 
           }
 
-          // Create a spline
+          // Spline >>
           tk::spline s;
 
-          // Set (x,y) points to the spline
+          // Set (x,y) points for the spline
           s.set_points(ptsx, ptsy);
 
           // Define the actual (x,y) points we will use for the planner
@@ -312,14 +317,15 @@ int main() {
             next_y_vals.push_back(y_point);
 
           }
-          // end of spline
 
+          // Json Message >>
           json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
           auto msg = "42[\"control\","+ msgJson.dump()+"]";
 
+          // Web Sockets >>
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {

@@ -55,26 +55,21 @@ The above source code compiles successfully in the Udacity workspace.
 
 ---
 ### Reflection
-The code for Generating Paths is included in file **_main.cpp_**. An explanation of how the code works is provided below.
+The code for Path Planning and Generating Paths is included in file **_main.cpp_** from line 76 onwards. An explanation of how the code works is provided below.
 
-__Localisation >>__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed
+__Localization >> [line 79](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L79)__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed.
 
-__Previous Path >>__ The simulator provides previous path data sent to the path planner
+__Previous Path >> [line 88](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L88)__ The simulator provides previous path data sent to the path planner.
 
-__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
+__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d.  Use this data to calculate their velocity, proximity and lane position.
 
-__Path planning >>__ Determine position of my car compared to other cars and then decide whether to change lane, speed up or slow down.  Detailed Path Planning steps are provided at the end of this section.
+__Path Planning >>__ Determine position of my car compared to other cars and then decide whether to change lane, speed up or slow down. This is something I struggled to achieve successfully without excessive Jerk or numerous if-else statements. I wasn't sure if I needed to implement an FSM.  However, below solution by DarienMT showed me what could be achieved with some very simple logical arithmetic to compare lane numbers.
+https://github.com/darienmt/CarND-Path-Planning-Project-P1
 
-__Spline >>__  Use an external library to create a series of waypoints for my car to drive through
+__Generating Paths >>__ Create two initial reference points; either use my car's current position if the car has just set off or two previous points that were sent to the planner. Then define the next 3x future waypoints at 30m intervals up the road using Frenet coordinates and convert back to (x,y) map coordinates.
 
-__Json >>__ Construct a message in Json format with a series of new X and Y values to tell my car which path to follow
+__Spline >>__  Use the Spline external library to create a series of 50 (x,y) waypoints on the spline of the same previously generated path with a curve that ensures my car drives smoothly and does not exceed the speed limit or cause excessive Jerk acceleration given its reference velocity.
 
-__Web Sockets >>__ Send message to the simulator
+__Json Message >>__ Construct a message in Json format to hold the (x,y) waypoint values which will be used to tell my car which path to follow.
 
-__Detailed Steps__
- *  __Check position of other cars >>__ Use sensor fusion data to determine position of other cars that are in close proximity  __TO DO__
- *  __Change lane >>__ Change the lane of my car if safe to do so  __TO DO__
- * __Initial reference points >>__ For defining the path for my car to follow, if previous path is almost empty (eg. < 2 points because my car is near the start) use my car's actual position as reference points; or use my car's previous path's last 2 end points as reference points
- *  __Define next waypoints >>__ Add 3x additional waypoints evenly spaced at 30m intervals ahead of the starting reference in s,d Frenet coordinates and then convert to x,y cartesian coordinates
- *  __Create spline >>__ Use above waypoints to create a spline of points to follow
- *  __Path planner >>__ Fill up path planner of future points to follow  __TO DO__
+__Web Sockets >>__ Send message to the simulator.
