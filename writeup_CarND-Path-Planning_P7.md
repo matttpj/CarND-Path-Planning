@@ -19,8 +19,8 @@ The major steps taken to complete this project included:
 
 [//]: # (Image References) **TODO: update screenshot image**  
 
-__Screenshot of the driving simulator__  
-<img src="./path_planning_success.jpg" width=100% height=100%>
+__Screenshot from the driving simulator__  
+<img src="./path_planning_success.jpg" width=60% height=60%>
 
 ---
 ### Writeup / README
