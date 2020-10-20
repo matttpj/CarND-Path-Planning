@@ -17,8 +17,7 @@ The major steps taken to complete this project included:
 * Explaining in detail the code in __main.cpp__ for generating paths **_[see below](#Reflection)_**
 
 
-[//]: # (Image References) **TODO: update screenshot image**  
-
+[//]: # (Image References)
 __Screenshot from the driving simulator__  
 <img src="./path_planning_success.jpg" width=60% height=60%>
 
@@ -56,7 +55,7 @@ The above source code compiles successfully in the Udacity workspace.
 
 ---
 ### Reflection
-The code for Generating Paths is included in file **_main.cpp_**  from line 54 onwards. An explanation of how it works is outlined below.
+The code for Generating Paths is included in file **_main.cpp_**. An explanation of how the code works is provided below.
 
 __Localisation >>__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed
 
@@ -64,11 +63,13 @@ __Previous Path >>__ The simulator provides previous path data sent to the path 
 
 __Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d
 
-__Spline >>__  Uses an external library to create a series of waypoints for my car to drive through
+__Path planning >>__ Determine position of my car compared to other cars and then decide whether to change lane, speed up or slow down.  Detailed Path Planning steps are provided at the end of this section.
 
-__Json >>__ Constructs a message in Json format with a series of new X and Y values to tell my car which path to follow
+__Spline >>__  Use an external library to create a series of waypoints for my car to drive through
 
-__Web Sockets >>__ Sends message to the simulator
+__Json >>__ Construct a message in Json format with a series of new X and Y values to tell my car which path to follow
+
+__Web Sockets >>__ Send message to the simulator
 
 __Detailed Steps__
  *  __Check position of other cars >>__ Use sensor fusion data to determine position of other cars that are in close proximity  __TO DO__
