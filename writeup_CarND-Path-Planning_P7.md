@@ -57,19 +57,19 @@ The above source code compiles successfully in the Udacity workspace.
 ### Reflection
 The code for Path Planning and Generating Paths is included in file **_main.cpp_** from line 76 onwards. An explanation of how the code works is provided below.
 
-__Localization >> [line 79](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L79)__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed.
+__Localization [line 79](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L79) >>__ The simulator provides information about position of my car on the track, including: x, y, s, d, theta, yaw, speed.
 
-__Previous Path >> [line 88](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L88)__ The simulator provides previous path data sent to the path planner.
+__Previous Path [line 88](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L88) >>__ The simulator provides previous path data sent to the path planner.
 
-__Sensor Fusion >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d.  Use this data to calculate their velocity, proximity and lane position.
+__Sensor Fusion [line 98](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L98) >>__ The simulator provides data about positions of other cars on my side of the track, including: id, x, y, vx, vy, s, d.  Use this data to calculate their velocity, proximity and lane position.
 
-__Path Planning >>__ Determine position of my car compared to other cars and then decide whether to change lane, speed up or slow down. This is something I struggled to achieve successfully without excessive Jerk or numerous if-else statements. I wasn't sure if I needed to implement an FSM.  However, below solution by DarienMT showed me what could be achieved with some very simple logical arithmetic to compare lane numbers.
+__Path Planning [line 161](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L161) >>__ Determine position of my car compared to other cars and then decide whether to change lane, speed up or slow down. This is something I struggled to achieve successfully without excessive Jerk or numerous if-else statements. I wasn't sure if I needed to implement an FSM.  However, below solution by DarienMT showed me what could be achieved with some very simple logical arithmetic to compare lane numbers.
 https://github.com/darienmt/CarND-Path-Planning-Project-P1
 
-__Generating Paths >>__ Create two initial reference points; either use my car's current position if the car has just set off or two previous points that were sent to the planner. Then define the next 3x future waypoints at 30m intervals up the road using Frenet coordinates and convert back to (x,y) map coordinates.
+__Generating Paths [line 197](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L197) >>__ Create two initial reference points; either use my car's current position if the car has just set off or two previous points that were sent to the planner. Then define the next 3x future waypoints at 30m intervals up the road using Frenet coordinates and convert back to (x,y) map coordinates.
 
-__Spline >>__  Use the Spline external library to create a series of 50 (x,y) waypoints on the spline of the same previously generated path with a curve that ensures my car drives smoothly and does not exceed the speed limit or cause excessive Jerk acceleration given its reference velocity.
+__Spline [line 265](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L265) >>__  Use the Spline external library to create a series of 50 (x,y) waypoints on the spline of the same previously generated path with a curve that ensures my car drives smoothly and does not exceed the speed limit or cause excessive Jerk acceleration given its reference velocity.
 
-__Json Message >>__ Construct a message in Json format to hold the (x,y) waypoint values which will be used to tell my car which path to follow.
+__Json Message [line 321](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L321) >>__ Construct a message in Json format to hold the (x,y) waypoint values which will be used to tell my car which path to follow.
 
-__Web Sockets >>__ Send message to the simulator.
+__Web Sockets [line 328](https://github.com/matttpj/CarND-Path-Planning/blob/master/src/main.cpp#L328) >>__ Send message to the simulator.
